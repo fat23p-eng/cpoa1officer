@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สสพ.1 – Dashboard เจ้าหน้าที่ส่งเสริมสหกรณ์</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary:#1a4f8a; --primary-light:#2563b0; --primary-dark:#0f2d52;
+  --accent:#e8a000; --accent-light:#f5c518;
+  --success:#16a34a; --danger:#dc2626; --warn:#d97706;
+  --bg:#eef2f8; --surface:#fff; --surface2:#f6f9fc;
+  --border:#d1dbe8; --text:#1e293b; --muted:#64748b; --light:#94a3b8;
+  --sh:0 2px 12px rgba(26,79,138,.10); --sh-md:0 6px 28px rgba(26,79,138,.15);
+  --r:12px; --r-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ═══ LOGIN ═══ */
+#loginScreen{
+  position:fixed;inset:0;z-index:9999;
+  background:linear-gradient(145deg,#091e3a 0%,var(--primary) 55%,#1e6bb8 100%);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.login-card{
+  background:var(--surface);border-radius:20px;padding:48px 40px;
+  width:100%;max-width:430px;box-shadow:0 32px 80px rgba(0,0,0,.35);text-align:center;
+}
+.lcard-logo{
+  width:86px;height:86px;margin:0 auto 18px;background:var(--primary-dark);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 28px rgba(26,79,138,.5);
+}
+.lcard-logo img,.lcard-logo svg{width:52px;height:52px}
+.lcard-title{font-size:1.25rem;font-weight:800;color:var(--primary);line-height:1.35;margin-bottom:4px}
+.lcard-sub{font-size:.85rem;color:var(--muted);margin-bottom:30px}
+.lfield{margin-bottom:15px;text-align:left}
+.lfield label{display:block;font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.03em}
+.lfield input{
+  width:100%;padding:11px 16px;border:1.5px solid var(--border);border-radius:var(--r-sm);
+  font-size:.95rem;font-family:inherit;outline:none;transition:.2s;
+}
+.lfield input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,79,138,.12)}
+#loginError{color:var(--danger);font-size:.82rem;min-height:18px;margin-bottom:10px}
+.btn-login{
+  width:100%;padding:13px;background:var(--primary);color:#fff;border:none;
+  border-radius:var(--r-sm);font-size:1rem;font-weight:700;font-family:inherit;
+  cursor:pointer;transition:.2s;
+}
+.btn-login:hover{background:var(--primary-light);transform:translateY(-1px);box-shadow:var(--sh-md)}
+
+/* ═══ APP ═══ */
+#app{display:none;flex-direction:column;min-height:100vh}
+#app.show{display:flex}
+
+/* TOPBAR */
+.topbar{
+  background:linear-gradient(90deg,var(--primary-dark) 0%,var(--primary) 100%);
+  padding:0 24px;display:flex;align-items:center;gap:14px;height:62px;
+  box-shadow:0 3px 12px rgba(0,0,0,.25);position:sticky;top:0;z-index:200;
+}
+.tb-logo{
+  width:42px;height:42px;background:#fff;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
+}
+.tb-logo svg{width:26px;height:26px}
+.tb-text{flex:1;overflow:hidden}
+.tb-title{font-size:1rem;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-sub{font-size:.72rem;color:rgba(255,255,255,.65)}
+.tb-user{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border-radius:30px;padding:5px 12px 5px 6px;flex-shrink:0}
+.tb-avatar{width:28px;height:28px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:var(--primary-dark)}
+.tb-uname{font-size:.82rem;color:#fff;font-weight:600}
+.btn-logout{background:rgba(255,255,255,.15);border:none;border-radius:6px;color:rgba(255,255,255,.85);padding:5px 11px;font-size:.78rem;cursor:pointer;font-family:inherit;transition:.2s}
+.btn-logout:hover{background:rgba(255,255,255,.28)}
+
+/* MAIN */
+.main{flex:1;padding:24px;max-width:1440px;margin:0 auto;width:100%}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
+.sc{
+  background:var(--surface);border-radius:var(--r);padding:18px;
+  box-shadow:var(--sh);display:flex;align-items:center;gap:14px;
+  border-left:4px solid var(--primary);transition:.2s;
+}
+.sc:hover{transform:translateY(-2px);box-shadow:var(--sh-md)}
+.sc.c-gold{border-color:var(--accent)}
+.sc.c-green{border-color:var(--success)}
+.sc.c-warn{border-color:var(--warn)}
+.sc.c-red{border-color:var(--danger)}
+.sc-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;flex-shrink:0}
+.ic-blue{background:rgba(26,79,138,.1)} .ic-gold{background:rgba(232,160,0,.13)}
+.ic-green{background:rgba(22,163,74,.11)} .ic-warn{background:rgba(217,119,6,.11)}
+.ic-red{background:rgba(220,38,38,.1)}
+.sc-num{font-size:1.75rem;font-weight:800;line-height:1}
+.sc-label{font-size:.77rem;color:var(--muted);margin-top:2px}
+
+/* TOOLBAR */
+.toolbar{
+  background:var(--surface);border-radius:var(--r);padding:14px 18px;
+  box-shadow:var(--sh);margin-bottom:18px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+}
+.sw{position:relative;flex:1;min-width:200px}
+.sw input{
+  width:100%;padding:9px 16px 9px 40px;border:1.5px solid var(--border);border-radius:30px;
+  font-size:.88rem;font-family:inherit;outline:none;transition:.2s;
+}
+.sw input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,79,138,.09)}
+.sw-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.95rem;pointer-events:none}
+select.flt{
+  padding:9px 14px;border:1.5px solid var(--border);border-radius:30px;
+  font-size:.85rem;font-family:inherit;outline:none;cursor:pointer;background:var(--surface);
+  color:var(--text);transition:.2s;
+}
+select.flt:focus{border-color:var(--primary)}
+.tb-right{display:flex;gap:8px;align-items:center;margin-left:auto}
+.btn{
+  padding:9px 18px;border-radius:30px;border:none;font-size:.85rem;
+  font-family:inherit;font-weight:700;cursor:pointer;transition:.2s;
+  display:flex;align-items:center;gap:6px;
+}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-light);transform:translateY(-1px);box-shadow:0 4px 14px rgba(26,79,138,.3)}
+.btn-success{background:var(--success);color:#fff}
+.btn-success:hover{background:#15803d}
+.btn-outline{background:transparent;color:var(--primary);border:1.5px solid var(--primary)}
+.btn-outline:hover{background:var(--primary);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{background:#b91c1c}
+
+/* TABLE */
+.table-wrap{background:var(--surface);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.tw-head{padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.tw-title{font-size:.95rem;font-weight:800;color:var(--text)}
+.tw-count{font-size:.78rem;color:var(--muted)}
+.tscroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:680px}
+thead th{
+  background:#f0f5fb;padding:11px 14px;text-align:left;font-size:.76rem;font-weight:800;
+  color:var(--muted);text-transform:uppercase;letter-spacing:.05em;
+  border-bottom:2px solid var(--border);cursor:pointer;user-select:none;white-space:nowrap;transition:.15s;
+}
+thead th:hover{background:#e4edf7}
+thead th.sorted{color:var(--primary)}
+thead th .si{margin-left:3px;font-size:.7rem}
+tbody tr{border-bottom:1px solid #f0f5fb;transition:.1s}
+tbody tr:hover{background:#f5f8fd}
+tbody tr:last-child{border-bottom:none}
+td{padding:11px 14px;font-size:.86rem;vertical-align:middle}
+.td-no{color:var(--light);font-size:.78rem;font-weight:600;text-align:center;width:44px}
+.td-id{font-family:monospace;font-size:.74rem;color:var(--muted)}
+.td-name{font-weight:700;max-width:260px}
+.td-name small{display:block;font-size:.72rem;font-weight:400;color:var(--muted);margin-top:1px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;white-space:nowrap}
+.b-sav{background:#dbeafe;color:#1d4ed8}
+.b-ser{background:#fce7f3;color:#9d174d}
+.b-cre{background:#d1fae5;color:#065f46}
+.b-sto{background:#fef3c7;color:#92400e}
+.b-agr{background:#dcfce7;color:#14532d}
+.b-fis{background:#e0f2fe;color:#075985}
+.td-grp{font-size:.82rem;color:var(--primary);font-weight:600}
+.td-grp.empty{color:var(--light);font-style:italic;font-weight:400}
+.td-off{font-size:.84rem;color:var(--text)}
+.td-off.empty{color:var(--light);font-style:italic}
+.td-act{white-space:nowrap;text-align:right}
+.ab{
+  width:30px;height:30px;border-radius:6px;border:none;
+  display:inline-flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:.88rem;transition:.15s;margin-left:3px;
+}
+.ab-edit{background:rgba(26,79,138,.1);color:var(--primary)}
+.ab-edit:hover{background:var(--primary);color:#fff}
+.ab-del{background:rgba(220,38,38,.1);color:var(--danger)}
+.ab-del:hover{background:var(--danger);color:#fff}
+
+/* PAGINATION */
+.pager{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 18px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px;
+}
+.pg-info{font-size:.78rem;color:var(--muted)}
+.pg-btns{display:flex;gap:3px}
+.pb{
+  min-width:32px;height:32px;border-radius:7px;border:1.5px solid var(--border);
+  background:var(--surface);font-size:.82rem;cursor:pointer;font-family:inherit;
+  transition:.15s;display:flex;align-items:center;justify-content:center;padding:0 6px;
+}
+.pb:hover:not(:disabled){border-color:var(--primary);color:var(--primary)}
+.pb.active{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:800}
+.pb:disabled{opacity:.35;cursor:not-allowed}
+
+/* MODAL */
+.overlay{
+  position:fixed;inset:0;z-index:1000;background:rgba(10,24,46,.55);
+  backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:20px;
+}
+.overlay.show{display:flex}
+.modal{
+  background:var(--surface);border-radius:16px;width:100%;max-width:540px;
+  box-shadow:0 28px 90px rgba(0,0,0,.28);animation:slideUp .2s ease;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.mh{
+  padding:22px 24px 16px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.mh-title{font-size:1.05rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px}
+.mc{width:30px;height:30px;border-radius:7px;border:none;background:var(--surface2);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:.15s}
+.mc:hover{background:var(--border)}
+.mb{padding:18px 24px}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:.78rem;font-weight:800;color:var(--muted);margin-bottom:5px;letter-spacing:.03em}
+.fg input,.fg select{
+  width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--r-sm);
+  font-size:.9rem;font-family:inherit;outline:none;transition:.2s;
+}
+.fg input:focus,.fg select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,79,138,.1)}
+.fg input[readonly]{background:var(--surface2);color:var(--muted)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.mf{padding:14px 24px 22px;display:flex;gap:9px;justify-content:flex-end}
+
+/* CONFIRM */
+.cmodal{max-width:370px}
+.cicon{font-size:2.6rem;text-align:center;margin-bottom:10px}
+.cmsg{text-align:center;font-size:.92rem;color:var(--text);line-height:1.65}
+.cmsg strong{color:var(--danger)}
+
+/* TOAST */
+#toastCont{position:fixed;bottom:22px;right:22px;z-index:9000;display:flex;flex-direction:column;gap:7px}
+.toast{
+  background:var(--text);color:#fff;padding:11px 18px;border-radius:10px;
+  font-size:.86rem;box-shadow:0 4px 18px rgba(0,0,0,.22);
+  animation:fadeUp .22s ease;display:flex;align-items:center;gap:8px;min-width:210px;
+}
+.toast.success{background:var(--success)} .toast.danger{background:var(--danger)} .toast.warn{background:var(--warn)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* EMPTY */
+.empty-st{text-align:center;padding:56px 20px;color:var(--muted)}
+.empty-st div{font-size:2.8rem;margin-bottom:10px}
+.empty-st p{font-size:.92rem}
+
+/* responsive */
+@media(max-width:640px){
+  .main{padding:14px} .topbar{padding:0 14px}
+  .tb-title{font-size:.88rem} .tb-sub{display:none}
+  .frow{grid-template-columns:1fr} .stats-row{grid-template-columns:1fr 1fr}
+  .login-card{padding:30px 22px}
+}
+
+/* CPD Logo badge */
+.cpd-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(232,160,0,.15);border:1px solid rgba(232,160,0,.4);
+  border-radius:30px;padding:3px 12px 3px 6px;margin-left:8px;
+}
+.cpd-dot{width:20px;height:20px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:900;color:var(--primary-dark)}
+.cpd-txt{font-size:.72rem;font-weight:800;color:var(--accent);letter-spacing:.05em}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN ═══ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="lcard-logo">
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- head -->
+        <circle cx="32" cy="18" r="9" fill="#fff"/>
+        <!-- collar / neck -->
+        <path d="M24 27 Q24 30 32 31 Q40 30 40 27 L40 29 Q40 34 32 35 Q24 34 24 29 Z" fill="#fff"/>
+        <!-- uniform body -->
+        <path d="M14 56 Q14 40 32 38 Q50 40 50 56 Z" fill="#fff"/>
+        <!-- uniform lapels -->
+        <path d="M32 38 L27 44 L32 47 L37 44 Z" fill="#e8a000"/>
+        <!-- badge on chest -->
+        <rect x="28" y="42" width="8" height="5" rx="1" fill="#e8a000"/>
+        <line x1="30" y1="44" x2="34" y2="44" stroke="#fff" stroke-width="1" stroke-linecap="round"/>
+        <!-- epaulettes -->
+        <rect x="14" y="39" width="7" height="3" rx="1.5" fill="#e8a000"/>
+        <rect x="43" y="39" width="7" height="3" rx="1.5" fill="#e8a000"/>
+        <!-- hat / cap -->
+        <path d="M20 16 Q20 8 32 8 Q44 8 44 16" fill="#1a4f8a"/>
+        <rect x="18" y="15" width="28" height="3" rx="1.5" fill="#0f2d52"/>
+        <!-- hat badge -->
+        <circle cx="32" cy="12" r="3" fill="#e8a000"/>
+        <circle cx="32" cy="12" r="1.5" fill="#fff"/>
+      </svg>
+    </div>
+    <div class="lcard-title">สำนักงานส่งเสริมสหกรณ์<br>กรุงเทพมหานคร พื้นที่ 1</div>
+    <div class="lcard-sub">ระบบจัดการข้อมูลเจ้าหน้าที่ส่งเสริมสหกรณ์ (สสพ.1)</div>
+    <div class="lfield">
+      <label>ชื่อผู้ใช้งาน</label>
+      <input id="lu" type="text" placeholder="Username" autocomplete="username">
+    </div>
+    <div class="lfield">
+      <label>รหัสผ่าน</label>
+      <input id="lp" type="password" placeholder="Password" autocomplete="current-password">
+    </div>
+    <div id="loginError"></div>
+    <button class="btn-login" onclick="doLogin()">🔐 เข้าสู่ระบบ</button>
+
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="app">
+  <div class="topbar">
+    <div class="tb-logo">
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="18" r="9" fill="#1a4f8a"/>
+        <path d="M24 27 Q24 30 32 31 Q40 30 40 27 L40 29 Q40 34 32 35 Q24 34 24 29 Z" fill="#1a4f8a"/>
+        <path d="M14 56 Q14 40 32 38 Q50 40 50 56 Z" fill="#1a4f8a"/>
+        <path d="M32 38 L27 44 L32 47 L37 44 Z" fill="#e8a000"/>
+        <rect x="28" y="42" width="8" height="5" rx="1" fill="#e8a000"/>
+        <line x1="30" y1="44" x2="34" y2="44" stroke="#fff" stroke-width="1" stroke-linecap="round"/>
+        <rect x="14" y="39" width="7" height="3" rx="1.5" fill="#e8a000"/>
+        <rect x="43" y="39" width="7" height="3" rx="1.5" fill="#e8a000"/>
+        <path d="M20 16 Q20 8 32 8 Q44 8 44 16" fill="#0f2d52"/>
+        <rect x="18" y="15" width="28" height="3" rx="1.5" fill="#091e3a"/>
+        <circle cx="32" cy="12" r="3" fill="#e8a000"/>
+        <circle cx="32" cy="12" r="1.5" fill="#fff"/>
+      </svg>
+    </div>
+    <div class="tb-text">
+      <div class="tb-title">
+        Dashboard เจ้าหน้าที่ส่งเสริมสหกรณ์
+        <span class="cpd-badge"><span class="cpd-dot">C</span><span class="cpd-txt">CPD</span></span>
+      </div>
+      <div class="tb-sub">สสพ.1 · สำนักงานส่งเสริมสหกรณ์กรุงเทพมหานคร พื้นที่ 1</div>
+    </div>
+    <div class="tb-user">
+      <div class="tb-avatar" id="tbAvatar">A</div>
+      <div class="tb-uname" id="tbUname">admin</div>
+    </div>
+    <button class="btn-logout" onclick="doLogout()">ออกจากระบบ</button>
+  </div>
+
+  <div class="main">
+    <!-- STATS -->
+    <div class="stats-row" id="statsRow"></div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="sw">
+        <span class="sw-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="ค้นหาชื่อสหกรณ์ / รหัส / เจ้าหน้าที่..." oninput="applyFilter()">
+      </div>
+      <select class="flt" id="fType" onchange="applyFilter()">
+        <option value="">ประเภทสหกรณ์ทั้งหมด</option>
+        <option>สหกรณ์ออมทรัพย์</option>
+        <option>สหกรณ์บริการ</option>
+        <option>สหกรณ์เครดิตยูเนี่ยน</option>
+        <option>สหกรณ์ร้านค้า</option>
+        <option>สหกรณ์การเกษตร</option>
+        <option>สหกรณ์ประมง</option>
+      </select>
+      <select class="flt" id="fGroup" onchange="applyFilter()">
+        <option value="">กลุ่มทั้งหมด</option>
+        <option>กลุ่มส่งเสริมสหกรณ์ 1</option>
+        <option>กลุ่มส่งเสริมสหกรณ์ 2</option>
+        <option>กลุ่มส่งเสริมสหกรณ์ 3</option>
+        <option>กลุ่มส่งเสริมสหกรณ์ 4</option>
+        <option>กลุ่มส่งเสริมสหกรณ์ 5</option>
+        <option>กลุ่มส่งเสริมสหกรณ์ 6</option>
+        <option>กลุ่มจัดตั้งและส่งเสริมสหกรณ์</option>
+        <option value="__unassigned__">ยังไม่กำหนดกลุ่ม</option>
+      </select>
+      <select class="flt" id="fOfficer" onchange="applyFilter()">
+        <option value="">เจ้าหน้าที่ทั้งหมด</option>
+        <option value="__none__">ยังไม่มีเจ้าหน้าที่</option>
+      </select>
+      <div class="tb-right">
+        <button class="btn btn-outline" onclick="exportCSV()">📥 Export CSV</button>
+        <button class="btn btn-primary" id="btnAdd" onclick="openAdd()">＋ เพิ่มสหกรณ์</button>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <div class="tw-head">
+        <div class="tw-title">รายชื่อสหกรณ์ในความรับผิดชอบ สสพ.1</div>
+        <div class="tw-count" id="tableCount"></div>
+      </div>
+      <div class="tscroll">
+        <table id="mainTable">
+          <thead>
+            <tr>
+              <th class="td-no">#</th>
+              <th onclick="sortBy('Coop_ID')">รหัสสหกรณ์ <span class="si" id="s_Coop_ID"></span></th>
+              <th onclick="sortBy('Coop_Name')">ชื่อสหกรณ์ <span class="si" id="s_Coop_Name"></span></th>
+              <th onclick="sortBy('Type')">ประเภท <span class="si" id="s_Type"></span></th>
+              <th onclick="sortBy('Mu')">กลุ่ม <span class="si" id="s_Mu"></span></th>
+              <th onclick="sortBy('Officers')">ชื่อ จสส. <span class="si" id="s_Officers"></span></th>
+              <th onclick="sortBy('Phone_Officer')">เบอร์มือถือ <span class="si" id="s_Phone_Officer"></span></th>
+              <th>Gmail</th>
+              <th>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <div class="pg-info" id="pgInfo"></div>
+        <div class="pg-btns" id="pgBtns"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL EDIT/ADD ═══ -->
+<div class="overlay" id="editOverlay">
+  <div class="modal">
+    <div class="mh">
+      <div class="mh-title" id="modalTitle">✏️ แก้ไขข้อมูลสหกรณ์</div>
+      <button class="mc" onclick="closeModal('editOverlay')">✕</button>
+    </div>
+    <div class="mb">
+      <div class="fg">
+        <label>รหัสสหกรณ์</label>
+        <input type="text" id="fCoopID" readonly placeholder="รหัสสหกรณ์ (กรอกเองเมื่อเพิ่มใหม่)">
+      </div>
+      <div class="fg">
+        <label>ชื่อสหกรณ์</label>
+        <input type="text" id="fCoopName" placeholder="ชื่อสหกรณ์">
+      </div>
+      <div class="fg">
+        <label>ประเภทสหกรณ์</label>
+        <select id="fType2">
+          <option>สหกรณ์ออมทรัพย์</option>
+          <option>สหกรณ์บริการ</option>
+          <option>สหกรณ์เครดิตยูเนี่ยน</option>
+          <option>สหกรณ์ร้านค้า</option>
+          <option>สหกรณ์การเกษตร</option>
+          <option>สหกรณ์ประมง</option>
+        </select>
+      </div>
+      <div class="frow">
+        <div class="fg">
+          <label>กลุ่มส่งเสริมสหกรณ์</label>
+          <select id="fMu" onchange="updateOfficerDropdown()">
+            <option value="">-- เลือกกลุ่ม --</option>
+            <option>กลุ่มส่งเสริมสหกรณ์ 1</option>
+            <option>กลุ่มส่งเสริมสหกรณ์ 2</option>
+            <option>กลุ่มส่งเสริมสหกรณ์ 3</option>
+            <option>กลุ่มส่งเสริมสหกรณ์ 4</option>
+            <option>กลุ่มส่งเสริมสหกรณ์ 5</option>
+            <option>กลุ่มส่งเสริมสหกรณ์ 6</option>
+            <option>กลุ่มจัดตั้งและส่งเสริมสหกรณ์</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>ชื่อ จสส.</label>
+          <select id="fOfficer2">
+            <option value="">-- เลือกชื่อ จสส. --</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Gmail เจ้าหน้าที่</label>
+        <input type="email" id="fGmail" placeholder="example@gmail.com">
+      </div>
+      <div class="fg">
+        <label>📞 เบอร์มือถือ</label>
+        <input type="tel" id="fPhone" placeholder="08X-XXX-XXXX">
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-outline" onclick="closeModal('editOverlay')">ยกเลิก</button>
+      <button class="btn btn-primary" id="btnSave" onclick="saveRecord()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CONFIRM DELETE ═══ -->
+<div class="overlay" id="delOverlay">
+  <div class="modal cmodal">
+    <div class="mh">
+      <div class="mh-title">⚠️ ยืนยันการลบ</div>
+      <button class="mc" onclick="closeModal('delOverlay')">✕</button>
+    </div>
+    <div class="mb">
+      <div class="cicon">🗑️</div>
+      <div class="cmsg" id="delMsg">คุณต้องการลบสหกรณ์นี้ใช่หรือไม่?</div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-outline" onclick="closeModal('delOverlay')">ยกเลิก</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">🗑️ ลบเลย</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toastCont"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════
+const USERS = {admin:{pass:'admin123',role:'admin'},officer:{pass:'1234',role:'officer'}};
+
+const GROUP_OFFICERS = {
+  'กลุ่มส่งเสริมสหกรณ์ 1':['นางธัญภา สกุลศรีจินดา'],
+  'กลุ่มส่งเสริมสหกรณ์ 2':['นายนัทดนัย เปี่ยมเจียก'],
+  'กลุ่มส่งเสริมสหกรณ์ 3':['นางสาวขนิษฐา พรานเนื้อ'],
+  'กลุ่มส่งเสริมสหกรณ์ 4':['นางสาวนุจรินทร์ ศรีคุณเมือง'],
+  'กลุ่มส่งเสริมสหกรณ์ 5':['นางสาวสุลีวัลย์ สุยาละ'],
+  'กลุ่มส่งเสริมสหกรณ์ 6':['นางสาวทิพากร ทรงม่วง'],
+  'กลุ่มจัดตั้งและส่งเสริมสหกรณ์':[
+    'นางสาวศิริลักษ์ ครุฑใจกล้า','นางสาวนวลศรี เพชรไพสิฐ','นางสาวชนิดา วงษ์แก้ว',
+    'นางสาวดาราวรรณ มีบริบูรณ์','นายโสฬส เจริญพูล','นางสาวธนิดา รัตนวิจิตร',
+    'นายคึกฤทธิ์ อินทันแก้ว','นายปัญญพัฒน์ ศรีสวัสดิ์','นางสาวรัฐติพร กีหงษ์',
+    'นางสาวอรรยา ขันถม','นายสุทธินันท์ บุษราประภากูล','นางสาวกรองขวัญ ช้างสัมฤทธิ์',
+    'นางสาวกานต์สินี ธีระสิงห์','นางสาวอภิชญา สิทธิศักดิ์','นางสาวปิยะพร นิมาดร',
+    'นางสาวนิธิกานต์ จ่าราช','นายอิสรา ไทรงาม','นายวรทัศน์ เทียมสุวรรณ์',
+    'นายรัชพล หอมเหมือน','นางสาวกวินา ฉัตรชาตรี','นางสาวปิยาภรณ์ คงพูล',
+    'นางสาวสุชานันท์ เปลี่ยนสินไชย','นายนิทัต สุขสุสร','นางสุนีย์ คำมา',
+    'นางสาวศิวพร เหลืองอร่าม','นายเรืองชัย โพนพุฒ'
+  ]
+};
+
+const ALL_OFFICERS = Object.values(GROUP_OFFICERS).flat();
+
+let rawData = [{"Coop_ID":"1010001325201","Coop_Name":"สหกรณ์การเกษตรตลิ่งชัน จำกัด","Type":"สหกรณ์การเกษตร","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001225240","Coop_Name":"สหกรณ์การเกษตรบางขุนเทียน จำกัด","Type":"สหกรณ์การเกษตร","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001625369","Coop_Name":"สหกรณ์การเกษตรบางมดพัฒนา จำกัด","Type":"สหกรณ์การเกษตร","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001725245","Coop_Name":"สหกรณ์การเกษตรภาษีเจริญ จำกัด","Type":"สหกรณ์การเกษตร","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425144","Coop_Name":"สหกรณ์การเกษตรหนองแขมบางขุนเทียน จำกัด","Type":"สหกรณ์การเกษตร","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"5700000325581","Coop_Name":"ชุมนุมสหกรณ์ประมงแห่งประเทศไทย จำกัด","Type":"สหกรณ์ประมง","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1020001225528","Coop_Name":"สหกรณ์ มิตรแท้แท็กซี่ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000625515","Coop_Name":"สหกรณ์กรุงธน จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000325516","Coop_Name":"สหกรณ์ชลธรแท็กซี่ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000525293","Coop_Name":"สหกรณ์ทรัพย์ถาวรสี่ล้อเล็ก จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001625444","Coop_Name":"สหกรณ์บริการคนตาบอดแห่งประเทศไทย จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000825410","Coop_Name":"สหกรณ์บริการชุมชนเสนาสุข จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000325460","Coop_Name":"สหกรณ์บริการพนักงานการไฟฟ้านครหลวง จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000725446","Coop_Name":"สหกรณ์บริการวังขนาย จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125549","Coop_Name":"สหกรณ์บริการอิสลามอันนูร จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000925181","Coop_Name":"สหกรณ์บวรแท็กซี่ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000225626","Coop_Name":"สหกรณ์ผู้ประกอบการให้เช่าที่พักอาศัย จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000525482","Coop_Name":"สหกรณ์พรพัฒนา แท็กซี่ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000825508","Coop_Name":"สหกรณ์พรมงคล แท็กซี่ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001325285","Coop_Name":"สหกรณ์รัตนโกสินทร์สี่ล้อเล็ก จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000325503","Coop_Name":"สหกรณ์ราชพฤกษ์แท็กซี่ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125565","Coop_Name":"สหกรณ์วิชาชีพชาวเรือ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000525618","Coop_Name":"สหกรณ์สภาวิชาชีพผู้ขับขี่รถยนต์สาธารณะประเทศไทย จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002625269","Coop_Name":"สหกรณ์สยามเคหสถาน จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001325184","Coop_Name":"สหกรณ์สหมิตรแท็กซี่ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001325227","Coop_Name":"สหกรณ์สามล้อกรุงเทพมหานคร จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001425220","Coop_Name":"สหกรณ์สามล้อนครหลวง จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001525223","Coop_Name":"สหกรณ์สามล้อมวลชน จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002425250","Coop_Name":"สหกรณ์สามล้อรัตนโกสินทร์ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001425334","Coop_Name":"สหกรณ์สามัคคีสี่ล้อเล็ก จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125099","Coop_Name":"สหกรณ์เคหสถาน กรุงเทพฯ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425489","Coop_Name":"สหกรณ์เคหสถานคลองลัดภาชีร่วมพัฒนา จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000625485","Coop_Name":"สหกรณ์เคหสถานชุมชนกองขยะหนองแขม จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001125351","Coop_Name":"สหกรณ์เคหสถานชุมชนพัฒนาบ่อนไก่ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001025505","Coop_Name":"สหกรณ์เคหสถานชุมชนมักกะสัน จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002025290","Coop_Name":"สหกรณ์เคหสถานชุมชนเซ่งกี่ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000525541","Coop_Name":"สหกรณ์เคหสถานตรอกวังหลังต้นโพธิ์ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001125511","Coop_Name":"สหกรณ์เคหสถานบ้านมั่นคง วิมานทอง จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125658","Coop_Name":"สหกรณ์เคหสถานบ้านมั่นคงกนกทรัพย์ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000325486","Coop_Name":"สหกรณ์เคหสถานบ้านมั่นคงชุมชนสวนพลู จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000325590","Coop_Name":"สหกรณ์เคหสถานบ้านมั่นคงชุมชนเชื่อมสัมพันธ์ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125636","Coop_Name":"สหกรณ์เคหสถานบ้านมั่นคงบางบอนรวมใจ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425519","Coop_Name":"สหกรณ์เคหสถานบ้านมั่นคงประชาสามัคคี จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425610","Coop_Name":"สหกรณ์เคหสถานบ้านมั่นคงรวมพลังบุญรักษา จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125625","Coop_Name":"สหกรณ์เคหสถานบ้านมั่นคงศิริรุ่งโรจน์ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1000000125611","Coop_Name":"สหกรณ์เคหสถานบ้านมั่นคงเกียกกายพัฒนา จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000225584","Coop_Name":"สหกรณ์เคหสถานบ้านมั่นคงเจ้าพระยาราชพฤกษ์ 26 จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000725521","Coop_Name":"สหกรณ์เคหสถานบ้านมั่นคงเชื้อเพลิง 2 ร่วมใจ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125647","Coop_Name":"สหกรณ์เคหสถานบ้านมั่นคงเย็นอากาศ 2 จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000325617","Coop_Name":"สหกรณ์เคหสถานบ้านมั่นคงโรงเคลือบมีทรัพย์มีสุข จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000525596","Coop_Name":"สหกรณ์เคหสถานบ้านมั่นคงใจเดียวกัน จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000325499","Coop_Name":"สหกรณ์เคหสถานฟ้าใหม่ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000225568","Coop_Name":"สหกรณ์เคหสถานภาคภูมิใจ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000725491","Coop_Name":"สหกรณ์เคหสถานมั่นคงชุมชนวัดพระยาไกร จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002925385","Coop_Name":"สหกรณ์เคหสถานราชนาวี จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000725534","Coop_Name":"สหกรณ์เคหสถานราศรีธรรม จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001325490","Coop_Name":"สหกรณ์เคหสถานศิรินทร์และเพื่อน จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010003325388","Coop_Name":"สหกรณ์เคหสถานสุขสวัสดิ์ 60 จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002125365","Coop_Name":"สหกรณ์เคหสถานหลังวัดจันทร์ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000725518","Coop_Name":"สหกรณ์แท็กซี่ พรีเมียร์ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000225119","Coop_Name":"สหกรณ์แท็กซี่กรุงเทพ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125507","Coop_Name":"สหกรณ์แท็กซี่กาญจนาภิเษก จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000925455","Coop_Name":"สหกรณ์แท็กซี่ธนาสยาม จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001025491","Coop_Name":"สหกรณ์แท็กซี่พลังไทย จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002425449","Coop_Name":"สหกรณ์แท็กซี่มหานคร จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425535","Coop_Name":"สหกรณ์แท็กซี่ราษฎร์บูรณะ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001025459","Coop_Name":"สหกรณ์แท็กซี่สุวรรณภูมิ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000325196","Coop_Name":"สหกรณ์แท็กซี่อาสาสมัคร จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425548","Coop_Name":"สหกรณ์แท็กซี่เจ้าพระยา จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001725450","Coop_Name":"สหกรณ์แท็กซี่เพชรเกษม จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000925501","Coop_Name":"สหกรณ์โบ๊เบ๊ เฉลิมพระเกียรติ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001425288","Coop_Name":"สหกรณ์ใช้โยสี่ล้อเล็ก จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1020000825541","Coop_Name":"สหกรณ์ไทยเจริญแท็กซี่ จำกัด","Type":"สหกรณ์บริการ","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000124823","Coop_Name":"ร้านสหกรณ์กรุงเทพ จำกัด","Type":"สหกรณ์ร้านค้า","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125031","Coop_Name":"ร้านสหกรณ์จุฬาลงกรณ์มหาวิทยาลัย จำกัด","Type":"สหกรณ์ร้านค้า","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125275","Coop_Name":"ร้านสหกรณ์ตำรวจตระเวนชายแดน จำกัด","Type":"สหกรณ์ร้านค้า","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000124911","Coop_Name":"ร้านสหกรณ์พระนคร จำกัด","Type":"สหกรณ์ร้านค้า","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001125380","Coop_Name":"ร้านสหกรณ์มหาวิทยาลัยราชภัฏบ้านสมเด็จเจ้าพระยา จำกัด","Type":"สหกรณ์ร้านค้า","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001825206","Coop_Name":"ร้านสหกรณ์เทเวศร์ จำกัด","Type":"สหกรณ์ร้านค้า","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425593","Coop_Name":"ชุมนุมสหกรณ์กรุงเทพ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001225341","Coop_Name":"ชุมนุมสหกรณ์ออมทรัพย์ตำรวจแห่งชาติ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000124924","Coop_Name":"สหกรณ์ข้าราชการสหกรณ์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000725505","Coop_Name":"สหกรณ์ออมทรัพย์ ธพว. จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125523","Coop_Name":"สหกรณ์ออมทรัพย์ บริงค์ส (ประเทศไทย) จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001225413","Coop_Name":"สหกรณ์ออมทรัพย์ บี.เอ็น.เค. กรุ๊ป จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000825276","Coop_Name":"สหกรณ์ออมทรัพย์ ป.1 รอ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010003225385","Coop_Name":"สหกรณ์ออมทรัพย์ พนักงาน ธนชาต จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001425275","Coop_Name":"สหกรณ์ออมทรัพย์ พัน. สห. ๑๑ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125174","Coop_Name":"สหกรณ์ออมทรัพย์ รพช. จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002225443","Coop_Name":"สหกรณ์ออมทรัพย์ ริเวอร์ไซด์ กรุงเทพฯ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000525479","Coop_Name":"สหกรณ์ออมทรัพย์ สำนักงาน ปปง. จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001025518","Coop_Name":"สหกรณ์ออมทรัพย์ เอไอเอส จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125448","Coop_Name":"สหกรณ์ออมทรัพย์ เอ็ม บี เค กรุ๊ป จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000825511","Coop_Name":"สหกรณ์ออมทรัพย์ ไทย บี เอ็ม เอ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000325301","Coop_Name":"สหกรณ์ออมทรัพย์กรมการขนส่งทหารบก จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000725417","Coop_Name":"สหกรณ์ออมทรัพย์กรมการทหารสื่อสาร จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001025202","Coop_Name":"สหกรณ์ออมทรัพย์กรมการบินพลเรือน จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125060","Coop_Name":"สหกรณ์ออมทรัพย์กรมการปกครอง จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000625300","Coop_Name":"สหกรณ์ออมทรัพย์กรมการสารวัตรทหารบก จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001325243","Coop_Name":"สหกรณ์ออมทรัพย์กรมชลประทาน จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000225278","Coop_Name":"สหกรณ์ออมทรัพย์กรมช่างอากาศ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000825348","Coop_Name":"สหกรณ์ออมทรัพย์กรมตรวจบัญชีสหกรณ์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002425191","Coop_Name":"สหกรณ์ออมทรัพย์กรมทรัพยากรธรณี จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001125205","Coop_Name":"สหกรณ์ออมทรัพย์กรมทางหลวง จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001025231","Coop_Name":"สหกรณ์ออมทรัพย์กรมธนารักษ์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001425291","Coop_Name":"สหกรณ์ออมทรัพย์กรมบัญชีกลาง จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001225338","Coop_Name":"สหกรณ์ออมทรัพย์กรมประชาสัมพันธ์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000925237","Coop_Name":"สหกรณ์ออมทรัพย์กรมปศุสัตว์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125389","Coop_Name":"สหกรณ์ออมทรัพย์กรมพัฒนาพลังงานทดแทนและอนุรักษ์พลังงาน จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001825381","Coop_Name":"สหกรณ์ออมทรัพย์กรมวิทยาศาสตร์บริการ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001125306","Coop_Name":"สหกรณ์ออมทรัพย์กรมสรรพาวุธทหารบก จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002225267","Coop_Name":"สหกรณ์ออมทรัพย์กรมสวัสดิการทหารบก จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001925270","Coop_Name":"สหกรณ์ออมทรัพย์กรมส่งเสริมอุตสาหกรรม จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000224998","Coop_Name":"สหกรณ์ออมทรัพย์กรมอู่ทหารเรือ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001325328","Coop_Name":"สหกรณ์ออมทรัพย์กรมเจ้าท่า จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002325299","Coop_Name":"สหกรณ์ออมทรัพย์กรมโยธาธิการ 2529 จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000825322","Coop_Name":"สหกรณ์ออมทรัพย์กระทรวงการคลัง จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000225047","Coop_Name":"สหกรณ์ออมทรัพย์กระทรวงการพัฒนาสังคมและความมั่นคงของมนุษย์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001125377","Coop_Name":"สหกรณ์ออมทรัพย์กระทรวงคมนาคม จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125086","Coop_Name":"สหกรณ์ออมทรัพย์กระทรวงมหาดไทย จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002025434","Coop_Name":"สหกรณ์ออมทรัพย์กระทรวงวิทยาศาสตร์เทคโนโลยีและสิ่งแวดล้อม จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001325298","Coop_Name":"สหกรณ์ออมทรัพย์กระทรวงอุตสาหกรรม จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000725169","Coop_Name":"สหกรณ์ออมทรัพย์กระทรวงเกษตรและสหกรณ์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425333","Coop_Name":"สหกรณ์ออมทรัพย์กลุ่มบริษัทไทยรุ่งยูเนี่ยนคาร์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1020000125582","Coop_Name":"สหกรณ์ออมทรัพย์กลุ่มบริษัทไพลอน จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001825437","Coop_Name":"สหกรณ์ออมทรัพย์กลุ่มเม่งเซ้ง จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001025303","Coop_Name":"สหกรณ์ออมทรัพย์กองพลที่ 1 รักษาพระองค์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000525235","Coop_Name":"สหกรณ์ออมทรัพย์การตรวจเงินแผ่นดิน จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000225366","Coop_Name":"สหกรณ์ออมทรัพย์การนิคมอุตสาหกรรมแห่งประเทศไทย จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000325213","Coop_Name":"สหกรณ์ออมทรัพย์การยางแห่งประเทศไทย จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001425435","Coop_Name":"สหกรณ์ออมทรัพย์ของพนักงานโรงแรมอโนมา จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010003125265","Coop_Name":"สหกรณ์ออมทรัพย์ข้าราชการกรมสรรพสามิต จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000825205","Coop_Name":"สหกรณ์ออมทรัพย์ข้าราชการกระทรวงศึกษาธิการ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002525383","Coop_Name":"สหกรณ์ออมทรัพย์ข้าราชการกองพลทหารม้าที่ 2 รักษาพระองค์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000525219","Coop_Name":"สหกรณ์ออมทรัพย์ข้าราชการทบวงมหาวิทยาลัย จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125190","Coop_Name":"สหกรณ์ออมทรัพย์ข้าราชการฝ่ายรัฐสภา จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001425233","Coop_Name":"สหกรณ์ออมทรัพย์ข้าราชการสรรพากร จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125002","Coop_Name":"สหกรณ์ออมทรัพย์ข้าราชการหน่วยบัญชาการรักษาดินแดน จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000525323","Coop_Name":"สหกรณ์ออมทรัพย์ข้าราชการองค์การบริหารส่วนจังหวัด จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125015","Coop_Name":"สหกรณ์ออมทรัพย์ครูกรมสามัญศึกษา จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125073","Coop_Name":"สหกรณ์ออมทรัพย์ครูกรุงเทพมหานคร จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125158","Coop_Name":"สหกรณ์ออมทรัพย์ครูผู้บริหารโรงเรียนราษฎร์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001225497","Coop_Name":"สหกรณ์ออมทรัพย์คอทโก้เมททอลเวอร์คส จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125044","Coop_Name":"สหกรณ์ออมทรัพย์จุฬาลงกรณ์มหาวิทยาลัย จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001525207","Coop_Name":"สหกรณ์ออมทรัพย์ชาวพฤหัสบดี จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000625531","Coop_Name":"สหกรณ์ออมทรัพย์ดาต้าวัน เอเชีย (ประเทศไทย) จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425203","Coop_Name":"สหกรณ์ออมทรัพย์ตำรวจกองพลาธิการและสรรพาวุธ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000825292","Coop_Name":"สหกรณ์ออมทรัพย์ตำรวจกำลังพล จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000225151","Coop_Name":"สหกรณ์ออมทรัพย์ตำรวจตระเวนชายแดน จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002725190","Coop_Name":"สหกรณ์ออมทรัพย์ตำรวจทางหลวง จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002325198","Coop_Name":"สหกรณ์ออมทรัพย์ตำรวจนครบาล จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000225207","Coop_Name":"สหกรณ์ออมทรัพย์ตำรวจรถไฟ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125204","Coop_Name":"สหกรณ์ออมทรัพย์ตำรวจแห่งชาติ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125480","Coop_Name":"สหกรณ์ออมทรัพย์ทีพีไอ โพลีน-คอนกรีต จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000825319","Coop_Name":"สหกรณ์ออมทรัพย์นันทมิตร จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000825218","Coop_Name":"สหกรณ์ออมทรัพย์บริษัทวิทยุการบินแห่งประเทศไทย จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000925338","Coop_Name":"สหกรณ์ออมทรัพย์บริษัทสยามกลการ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000925354","Coop_Name":"สหกรณ์ออมทรัพย์บริษัทสยามดนตรียามาฮ่า จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000625603","Coop_Name":"สหกรณ์ออมทรัพย์ปิ่นทองกรุ๊ป จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425232","Coop_Name":"สหกรณ์ออมทรัพย์พนักงาน ขสมก. จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125376","Coop_Name":"สหกรณ์ออมทรัพย์พนักงานกลุ่มบริษัทอายิโนะโมะโต๊ะ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000825478","Coop_Name":"สหกรณ์ออมทรัพย์พนักงานซิงเกอร์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002625256","Coop_Name":"สหกรณ์ออมทรัพย์พนักงานธนาคารออมสิน จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125217","Coop_Name":"สหกรณ์ออมทรัพย์พนักงานธนาคารแห่งประเทศไทย จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000225614","Coop_Name":"สหกรณ์ออมทรัพย์พนักงานบริษัท โบว์เบเกอรี่เฮ้าส์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001825192","Coop_Name":"สหกรณ์ออมทรัพย์พนักงานห้างเซ็นทรัล จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001125364","Coop_Name":"สหกรณ์ออมทรัพย์พนักงานองค์การสะพานปลา จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425160","Coop_Name":"สหกรณ์ออมทรัพย์พนักงานเทศบาล จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002425380","Coop_Name":"สหกรณ์ออมทรัพย์พนักงานและลูกจ้างประจำองค์การสงเคราะห์ทหารผ่านศึก จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000625430","Coop_Name":"สหกรณ์ออมทรัพย์พนักงานโนโวเทล กรุงเทพฯ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001825264","Coop_Name":"สหกรณ์ออมทรัพย์พนักงานโรงแรมนารายณ์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000225281","Coop_Name":"สหกรณ์ออมทรัพย์พนักงานโรงแรมเพรสิเด้นท์และทาวเวอร์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001525438","Coop_Name":"สหกรณ์ออมทรัพย์พนักงานโรงแรมเอเชีย จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000325587","Coop_Name":"สหกรณ์ออมทรัพย์พระราชทานในพระองค์ 904 จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125594","Coop_Name":"สหกรณ์ออมทรัพย์มหาวิทยาลัยกรุงเทพธนบุรี จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425157","Coop_Name":"สหกรณ์ออมทรัพย์มหาวิทยาลัยธรรมศาสตร์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000725156","Coop_Name":"สหกรณ์ออมทรัพย์มหาวิทยาลัยมหิดล จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001625431","Coop_Name":"สหกรณ์ออมทรัพย์มหาวิทยาลัยสวนดุสิต จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425186","Coop_Name":"สหกรณ์ออมทรัพย์มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าธนบุรี จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125145","Coop_Name":"สหกรณ์ออมทรัพย์มหาวิทยาลัยเทคโนโลยีราชมงคลกรุงเทพ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000725303","Coop_Name":"สหกรณ์ออมทรัพย์มหาวิทยาลัยเอเชียอาคเนย์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001625271","Coop_Name":"สหกรณ์ออมทรัพย์ราษฎร์บูรณะ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000725185","Coop_Name":"สหกรณ์ออมทรัพย์วชิรพยาบาล จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000225425","Coop_Name":"สหกรณ์ออมทรัพย์วชิราวุธวิทยาลัย จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010003325261","Coop_Name":"สหกรณ์ออมทรัพย์วังพญาไท จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000625267","Coop_Name":"สหกรณ์ออมทรัพย์วังเดิม จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001425305","Coop_Name":"สหกรณ์ออมทรัพย์สคิบ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000725329","Coop_Name":"สหกรณ์ออมทรัพย์สภากาชาดไทย จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002225296","Coop_Name":"สหกรณ์ออมทรัพย์สวนมิสกวัน จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000825377","Coop_Name":"สหกรณ์ออมทรัพย์สหภาพแรงงานรัฐวิสาหกิจการท่องเที่ยวแห่งประเทศไทย จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125220","Coop_Name":"สหกรณ์ออมทรัพย์สหภาพแรงงานรัฐวิสาหกิจการไฟฟ้านครหลวง จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000525466","Coop_Name":"สหกรณ์ออมทรัพย์สหวิริยาสตีลอินดัสตรี จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000525352","Coop_Name":"สหกรณ์ออมทรัพย์สังคมพัฒนา จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002125381","Coop_Name":"สหกรณ์ออมทรัพย์สันนิบาตสหกรณ์แห่งประเทศไทย จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001025358","Coop_Name":"สหกรณ์ออมทรัพย์สำนักข่าวกรองแห่งชาติ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001525366","Coop_Name":"สหกรณ์ออมทรัพย์สำนักงบประมาณ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125581","Coop_Name":"สหกรณ์ออมทรัพย์สำนักงาน กสทช. จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000625254","Coop_Name":"สหกรณ์ออมทรัพย์สำนักงานการปฏิรูปที่ดินเพื่อเกษตรกรรม จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002525253","Coop_Name":"สหกรณ์ออมทรัพย์สำนักงานคณะกรรมการป้องกันและปราบปรามยาเสพติด จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001325445","Coop_Name":"สหกรณ์ออมทรัพย์สำนักงานนโยบายและแผนสิ่งแวดล้อม จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001725304","Coop_Name":"สหกรณ์ออมทรัพย์สำนักงานปลัดกระทรวงกลาโหม จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000325330","Coop_Name":"สหกรณ์ออมทรัพย์สำนักงานปลัดสำนักนายกรัฐมนตรี จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000525121","Coop_Name":"สหกรณ์ออมทรัพย์สำนักงานสภาพัฒนาการเศรษฐกิจและสังคมแห่งชาติ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125305","Coop_Name":"สหกรณ์ออมทรัพย์สำนักงานเลขานุการกองทัพบก จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425261","Coop_Name":"สหกรณ์ออมทรัพย์สำนักงานเศรษฐกิจการคลัง จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001725290","Coop_Name":"สหกรณ์ออมทรัพย์สำนักเลขาธิการคณะรัฐมนตรี จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000625326","Coop_Name":"สหกรณ์ออมทรัพย์สำนักเลขาธิการนายกรัฐมนตรี จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002325446","Coop_Name":"สหกรณ์ออมทรัพย์สิทธิพรแอสโซซิเอส จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000625498","Coop_Name":"สหกรณ์ออมทรัพย์สโมสรรถไฟ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000925309","Coop_Name":"สหกรณ์ออมทรัพย์หน่วยข่าวกรองทางทหาร จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001925384","Coop_Name":"สหกรณ์ออมทรัพย์หน่วยราชการในพระองค์ ๑ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125321","Coop_Name":"สหกรณ์ออมทรัพย์องค์การอุตสาหกรรมป่าไม้ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001625242","Coop_Name":"สหกรณ์ออมทรัพย์องค์การเภสัชกรรม จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001025488","Coop_Name":"สหกรณ์ออมทรัพย์อมรินทร์ทวีสุข จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000325200","Coop_Name":"สหกรณ์ออมทรัพย์อุเทนถวาย จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425506","Coop_Name":"สหกรณ์ออมทรัพย์เครือบางปะกอก จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000625401","Coop_Name":"สหกรณ์ออมทรัพย์เครือปิ่นทอง จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001025374","Coop_Name":"สหกรณ์ออมทรัพย์เครือโรงพยาบาลพญาไทและเปาโล จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425564","Coop_Name":"สหกรณ์ออมทรัพย์เฉลิมชัยชาญ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425551","Coop_Name":"สหกรณ์ออมทรัพย์เพื่อพนักงานเครือสหพัฒน์ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000625528","Coop_Name":"สหกรณ์ออมทรัพย์เหล็กแผ่นรีดเย็นไทย จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000225601","Coop_Name":"สหกรณ์ออมทรัพย์เอสเอสยูพีกรุ๊ป จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001125452","Coop_Name":"สหกรณ์ออมทรัพย์โรงพยาบาลตำรวจ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000625371","Coop_Name":"สหกรณ์ออมทรัพย์โรงพยาบาลทันตกรรมคณะทันตแพทยศาสตร์มหิดล จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125233","Coop_Name":"สหกรณ์ออมทรัพย์โรงพยาบาลประสาท จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000325154","Coop_Name":"สหกรณ์ออมทรัพย์โรงพยาบาลราชวิถี จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000825247","Coop_Name":"สหกรณ์ออมทรัพย์โรงพยาบาลหัวเฉียว จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000325170","Coop_Name":"สหกรณ์ออมทรัพย์โรงพยาบาลเลิดสิน จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000325112","Coop_Name":"สหกรณ์ออมทรัพย์โรงเรียนเอกชน จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1020001425377","Coop_Name":"สหกรณ์ออมทรัพย์โรงเรียนในเครือตั้งตรงจิตรพณิชยการ จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001825466","Coop_Name":"สหกรณ์ออมทรัพย์โรงแรมรอยัลออคิด เชอราตัน จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000425607","Coop_Name":"สหกรณ์ออมทรัพย์โรงแรมเอทัส จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1100000625487","Coop_Name":"สหกรณ์ออมทรัพย์ในเครือโปลิโฟม จำกัด","Type":"สหกรณ์ออมทรัพย์","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000525349","Coop_Name":"สหกรณ์เครดิตยูเนี่ยนกุฎีจีน จำกัด","Type":"สหกรณ์เครดิตยูเนี่ยน","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125422","Coop_Name":"สหกรณ์เครดิตยูเนี่ยนชุมชนเชื้อเพลิงร่วมใจพัฒนา จำกัด","Type":"สหกรณ์เครดิตยูเนี่ยน","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125611","Coop_Name":"สหกรณ์เครดิตยูเนี่ยนบีพีพีกรุ๊ปเงินฝากพอเพียง จำกัด","Type":"สหกรณ์เครดิตยูเนี่ยน","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000325529","Coop_Name":"สหกรณ์เครดิตยูเนี่ยนมหาวิทยาลัยราชภัฏสวนสุนันทา จำกัด","Type":"สหกรณ์เครดิตยูเนี่ยน","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000125536","Coop_Name":"สหกรณ์เครดิตยูเนี่ยนวังขนาย จำกัด","Type":"สหกรณ์เครดิตยูเนี่ยน","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001025387","Coop_Name":"สหกรณ์เครดิตยูเนี่ยนวัดนักบุญยอแซฟตรอกจันทน์ จำกัด","Type":"สหกรณ์เครดิตยูเนี่ยน","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000225555","Coop_Name":"สหกรณ์เครดิตยูเนี่ยนอัยย์ธนา จำกัด","Type":"สหกรณ์เครดิตยูเนี่ยน","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001125221","Coop_Name":"สหกรณ์เครดิตยูเนี่ยนเซนต์คาเบรียล จำกัด","Type":"สหกรณ์เครดิตยูเนี่ยน","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010001225237","Coop_Name":"สหกรณ์เครดิตยูเนี่ยนแม่พระประจักษ์ จำกัด","Type":"สหกรณ์เครดิตยูเนี่ยน","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000725404","Coop_Name":"สหกรณ์เครดิตยูเนี่ยนโพธิ์แก้ว จำกัด","Type":"สหกรณ์เครดิตยูเนี่ยน","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010000525365","Coop_Name":"สหกรณ์เครดิตยูเนี่ยนโรงพยาบาลเซนต์หลุยส์ จำกัด","Type":"สหกรณ์เครดิตยูเนี่ยน","Mu":"","Officers":"","Gmail_Officer":""},{"Coop_ID":"1010002225254","Coop_Name":"สหกรณ์เครดิตยูเนี่ยนโรงเรียนเซนต์ดอมินิก จำกัด","Type":"สหกรณ์เครดิตยูเนี่ยน","Mu":"","Officers":"","Gmail_Officer":""}];
+
+// Load from localStorage if exists
+const STORE_KEY = 'ssp1_data_v2';
+function loadData(){
+  try{ const s=localStorage.getItem(STORE_KEY); if(s) rawData=JSON.parse(s); }catch(e){}
+}
+function saveData(){ try{ localStorage.setItem(STORE_KEY,JSON.stringify(rawData)); }catch(e){} }
+loadData();
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let currentUser=null, filteredData=[], sortField='', sortAsc=true;
+let editIdx=-1, deleteIdx=-1;
+const PAGE_SIZE=20; let curPage=1;
+
+// ═══════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════
+function doLogin(){
+  const u=document.getElementById('lu').value.trim();
+  const p=document.getElementById('lp').value.trim();
+  const err=document.getElementById('loginError');
+  if(!u||!p){err.textContent='กรุณากรอกชื่อผู้ใช้และรหัสผ่าน';return;}
+  const usr=USERS[u];
+  if(!usr||usr.pass!==p){err.textContent='ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';return;}
+  currentUser={name:u,role:usr.role};
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').classList.add('show');
+  document.getElementById('tbAvatar').textContent=u[0].toUpperCase();
+  document.getElementById('tbUname').textContent=u;
+  if(usr.role!=='admin') document.getElementById('btnAdd').style.display='none';
+  buildOfficerFilter();
+  applyFilter();
+}
+function doLogout(){
+  currentUser=null;
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('lu').value='';
+  document.getElementById('lp').value='';
+  document.getElementById('loginError').textContent='';
+}
+document.getElementById('lp').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('lu').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+// ═══════════════════════════════════════════════
+// OFFICER DROPDOWN
+// ═══════════════════════════════════════════════
+function buildOfficerFilter(){
+  const sel=document.getElementById('fOfficer');
+  ALL_OFFICERS.forEach(o=>{
+    const op=document.createElement('option');op.value=o;op.textContent=o;sel.appendChild(op);
+  });
+}
+function updateOfficerDropdown(){
+  const grp=document.getElementById('fMu').value;
+  const sel=document.getElementById('fOfficer2');
+  const prev=sel.value;
+  sel.innerHTML='<option value="">-- เลือกชื่อ จสส. --</option>';
+  const list = grp ? (GROUP_OFFICERS[grp]||[]) : ALL_OFFICERS;
+  list.forEach(o=>{
+    const op=document.createElement('option');op.value=o;op.textContent=o;sel.appendChild(op);
+  });
+  if(prev && list.includes(prev)) sel.value=prev;
+}
+
+// ═══════════════════════════════════════════════
+// BADGE / TYPE
+// ═══════════════════════════════════════════════
+function badgeClass(t){
+  if(t.includes('ออมทรัพย์'))return 'b-sav';
+  if(t.includes('บริการ'))return 'b-ser';
+  if(t.includes('เครดิต'))return 'b-cre';
+  if(t.includes('ร้านค้า'))return 'b-sto';
+  if(t.includes('การเกษตร'))return 'b-agr';
+  if(t.includes('ประมง'))return 'b-fis';
+  return '';
+}
+
+// ═══════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════
+function renderStats(){
+  const total=rawData.length;
+  const assigned=rawData.filter(r=>r.Officers).length;
+  const unassigned=total-assigned;
+  const grpCount=Object.keys(GROUP_OFFICERS).length;
+  const html=`
+    <div class="sc"><div class="sc-icon ic-blue">🏢</div><div><div class="sc-num">${total}</div><div class="sc-label">สหกรณ์ทั้งหมด</div></div></div>
+    <div class="sc c-green"><div class="sc-icon ic-green">✅</div><div><div class="sc-num">${assigned}</div><div class="sc-label">มีเจ้าหน้าที่แล้ว</div></div></div>
+    <div class="sc c-warn"><div class="sc-icon ic-warn">⏳</div><div><div class="sc-num">${unassigned}</div><div class="sc-label">ยังไม่มีเจ้าหน้าที่</div></div></div>
+    <div class="sc c-gold"><div class="sc-icon ic-gold">👥</div><div><div class="sc-num">${grpCount}</div><div class="sc-label">กลุ่มส่งเสริมสหกรณ์</div></div></div>
+    <div class="sc c-red"><div class="sc-icon ic-red">👤</div><div><div class="sc-num">${ALL_OFFICERS.length}</div><div class="sc-label">เจ้าหน้าที่ส่งเสริมสหกรณ์</div></div></div>
+  `;
+  document.getElementById('statsRow').innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════
+// FILTER + SORT + RENDER
+// ═══════════════════════════════════════════════
+function applyFilter(){
+  const q=(document.getElementById('searchInput').value||'').toLowerCase();
+  const ftype=document.getElementById('fType').value;
+  const fgrp=document.getElementById('fGroup').value;
+  const foff=document.getElementById('fOfficer').value;
+  filteredData=rawData.filter(r=>{
+    const mq=!q||(r.Coop_Name||'').toLowerCase().includes(q)||(r.Coop_ID||'').includes(q)||(r.Officers||'').toLowerCase().includes(q);
+    const mt=!ftype||r.Type===ftype;
+    let mg=true;
+    if(fgrp==='__unassigned__') mg=!r.Mu;
+    else if(fgrp) mg=r.Mu===fgrp;
+    const mo=!foff||(foff==='__none__'?!r.Officers:r.Officers===foff);
+    return mq&&mt&&mg&&mo;
+  });
+  if(sortField){
+    filteredData.sort((a,b)=>{
+      const av=(a[sortField]||'').toString().toLowerCase();
+      const bv=(b[sortField]||'').toString().toLowerCase();
+      return sortAsc?av.localeCompare(bv,'th'):bv.localeCompare(av,'th');
+    });
+  }
+  curPage=1;
+  renderStats();
+  renderTable();
+}
+function sortBy(field){
+  if(sortField===field) sortAsc=!sortAsc; else{sortField=field;sortAsc=true;}
+  document.querySelectorAll('thead th').forEach(th=>th.classList.remove('sorted'));
+  const el=document.getElementById('s_'+field);
+  if(el){el.closest('th').classList.add('sorted');el.textContent=sortAsc?'▲':'▼';}
+  applyFilter();
+}
+
+function renderTable(){
+  const start=(curPage-1)*PAGE_SIZE, end=start+PAGE_SIZE;
+  const page=filteredData.slice(start,end);
+  const tbody=document.getElementById('tableBody');
+  document.getElementById('tableCount').textContent=`แสดง ${filteredData.length} รายการ จากทั้งหมด ${rawData.length} สหกรณ์`;
+  if(!page.length){
+    tbody.innerHTML=`<tr><td colspan="9"><div class="empty-st"><div>🔍</div><p>ไม่พบข้อมูลที่ค้นหา</p></div></td></tr>`;
+    renderPager();return;
+  }
+  const isAdmin=currentUser&&currentUser.role==='admin';
+  tbody.innerHTML=page.map((r,i)=>{
+    const globalIdx=rawData.indexOf(r);
+    const gmail=r.Gmail_Officer?`<a href="mailto:${r.Gmail_Officer}" style="color:var(--primary);font-size:.78rem">${r.Gmail_Officer}</a>`:`<span style="color:var(--light);font-size:.78rem">-</span>`;
+    const phone=r.Phone_Officer?`<a href="tel:${r.Phone_Officer}" style="color:var(--primary);font-size:.82rem;text-decoration:none">📞 ${r.Phone_Officer}</a>`:`<span style="color:var(--light);font-size:.78rem">-</span>`;
+    const acts=isAdmin?`
+      <button class="ab ab-edit" onclick="openEdit(${globalIdx})" title="แก้ไข">✏️</button>
+      <button class="ab ab-del" onclick="openDelete(${globalIdx})" title="ลบ">🗑️</button>
+    `:`<button class="ab ab-edit" onclick="openEdit(${globalIdx})" title="ดู/แก้ไข">✏️</button>`;
+    return `<tr>
+      <td class="td-no">${start+i+1}</td>
+      <td class="td-id">${r.Coop_ID}</td>
+      <td class="td-name">${r.Coop_Name}</td>
+      <td><span class="badge ${badgeClass(r.Type)}">${r.Type}</span></td>
+      <td class="td-grp ${r.Mu?'':'empty'}">${r.Mu||'—'}</td>
+      <td class="td-off ${r.Officers?'':'empty'}">${r.Officers||'ยังไม่กำหนด'}</td>
+      <td>${phone}</td>
+      <td>${gmail}</td>
+      <td class="td-act">${acts}</td>
+    </tr>`;
+  }).join('');
+  renderPager();
+}
+
+function renderPager(){
+  const total=filteredData.length, pages=Math.ceil(total/PAGE_SIZE);
+  const s=(curPage-1)*PAGE_SIZE+1, e=Math.min(curPage*PAGE_SIZE,total);
+  document.getElementById('pgInfo').textContent=total?`แสดง ${s}–${e} จาก ${total} รายการ`:'ไม่พบข้อมูล';
+  const cont=document.getElementById('pgBtns');
+  if(pages<=1){cont.innerHTML='';return;}
+  let btns=`<button class="pb" onclick="goPage(${curPage-1})" ${curPage===1?'disabled':''}>‹</button>`;
+  for(let p=1;p<=pages;p++){
+    if(pages>7&&(p>3&&p<pages-2&&Math.abs(p-curPage)>1)){
+      if(p===4||p===pages-3) btns+=`<button class="pb" disabled>…</button>`;
+      continue;
+    }
+    btns+=`<button class="pb ${p===curPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+  }
+  btns+=`<button class="pb" onclick="goPage(${curPage+1})" ${curPage===pages?'disabled':''}>›</button>`;
+  cont.innerHTML=btns;
+}
+function goPage(p){curPage=p;renderTable();}
+
+// ═══════════════════════════════════════════════
+// MODAL EDIT / ADD
+// ═══════════════════════════════════════════════
+function openAdd(){
+  editIdx=-1;
+  document.getElementById('modalTitle').textContent='➕ เพิ่มสหกรณ์ใหม่';
+  document.getElementById('fCoopID').readOnly=false;
+  document.getElementById('fCoopID').value='';
+  document.getElementById('fCoopName').value='';
+  document.getElementById('fType2').value='สหกรณ์ออมทรัพย์';
+  document.getElementById('fMu').value='';
+  updateOfficerDropdown();
+  document.getElementById('fOfficer2').value='';
+  document.getElementById('fGmail').value='';
+  document.getElementById('fPhone').value='';
+  document.getElementById('editOverlay').classList.add('show');
+}
+function openEdit(idx){
+  editIdx=idx;
+  const r=rawData[idx];
+  document.getElementById('modalTitle').textContent='✏️ แก้ไขข้อมูลสหกรณ์';
+  document.getElementById('fCoopID').readOnly=true;
+  document.getElementById('fCoopID').value=r.Coop_ID;
+  document.getElementById('fCoopName').value=r.Coop_Name;
+  document.getElementById('fType2').value=r.Type;
+  document.getElementById('fMu').value=r.Mu||'';
+  updateOfficerDropdown();
+  document.getElementById('fOfficer2').value=r.Officers||'';
+  document.getElementById('fGmail').value=r.Gmail_Officer||'';
+  document.getElementById('fPhone').value=r.Phone_Officer||'';
+  document.getElementById('editOverlay').classList.add('show');
+}
+function saveRecord(){
+  const id=document.getElementById('fCoopID').value.trim();
+  const name=document.getElementById('fCoopName').value.trim();
+  if(!name){showToast('กรุณากรอกชื่อสหกรณ์','warn');return;}
+  const rec={
+    Coop_ID:id, Coop_Name:name,
+    Type:document.getElementById('fType2').value,
+    Mu:document.getElementById('fMu').value,
+    Officers:document.getElementById('fOfficer2').value,
+    Gmail_Officer:document.getElementById('fGmail').value.trim(),
+    Phone_Officer:document.getElementById('fPhone').value.trim()
+  };
+  if(editIdx===-1){
+    if(!id){showToast('กรุณากรอกรหัสสหกรณ์','warn');return;}
+    rawData.push(rec);showToast('✅ เพิ่มสหกรณ์สำเร็จ','success');
+  } else {
+    rawData[editIdx]=rec;showToast('✅ บันทึกข้อมูลสำเร็จ','success');
+  }
+  saveData();closeModal('editOverlay');applyFilter();
+}
+
+// ═══════════════════════════════════════════════
+// DELETE
+// ═══════════════════════════════════════════════
+function openDelete(idx){
+  deleteIdx=idx;
+  const r=rawData[idx];
+  document.getElementById('delMsg').innerHTML=`คุณต้องการลบสหกรณ์<br><strong>${r.Coop_Name}</strong><br>ออกจากระบบใช่หรือไม่?`;
+  document.getElementById('delOverlay').classList.add('show');
+}
+function confirmDelete(){
+  if(deleteIdx<0)return;
+  rawData.splice(deleteIdx,1);
+  saveData();closeModal('delOverlay');applyFilter();
+  showToast('🗑️ ลบข้อมูลสำเร็จ','danger');deleteIdx=-1;
+}
+
+// ═══════════════════════════════════════════════
+// EXPORT CSV
+// ═══════════════════════════════════════════════
+function exportCSV(){
+  const BOM='\uFEFF';
+  const header='รหัสสหกรณ์,ชื่อสหกรณ์,ประเภท,กลุ่ม,ชื่อ จสส.,เบอร์มือถือ,Gmail';
+  const rows=filteredData.map(r=>[r.Coop_ID,`"${r.Coop_Name}"`,r.Type,r.Mu,r.Officers,r.Phone_Officer||'',r.Gmail_Officer].join(','));
+  const csv=BOM+[header,...rows].join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='สสพ1_officers_'+new Date().toLocaleDateString('th-TH')+'.csv';
+  a.click();
+  showToast('📥 Export CSV สำเร็จ','success');
+}
+
+// ═══════════════════════════════════════════════
+// MODAL CLOSE
+// ═══════════════════════════════════════════════
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+document.querySelectorAll('.overlay').forEach(o=>{
+  o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');});
+});
+
+// ═══════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════
+function showToast(msg,type=''){
+  const el=document.createElement('div');
+  el.className='toast '+(type||'');el.textContent=msg;
+  const cont=document.getElementById('toastCont');
+  cont.appendChild(el);setTimeout(()=>el.remove(),3000);
+}
+</script>
+</body>
+</html>
